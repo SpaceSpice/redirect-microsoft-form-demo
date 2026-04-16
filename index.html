@@ -1,44 +1,58 @@
-<script>
-    const forms = [
-        "https://google.com",
-        "https://microsoft.com",
-        "https://yahoo.com.hk"
-    ];
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Instant Demo Redirect</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f0f2f5; }
+        .card { padding: 40px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
+        #hk-clock { margin-top: 20px; color: #666; font-family: monospace; font-size: 1.2em; }
+    </style>
+</head>
+<body>
 
-    // Anchor: A fixed starting point (use any past minute)
-    const anchor = new Date("2024-01-01T00:00:00+08:00"); 
+    <div class="card">
+        <div id="status">Initializing...</div>
+        <div id="hk-clock"></div>
+    </div>
 
-    function update() {
-        // 1. Get current Hong Kong Time
-        const hkNowStr = new Date().toLocaleString("en-US", {timeZone: "Asia/Hong_Kong"});
-        const hkNow = new Date(hkNowStr);
+    <script>
+        const forms = [
+            "https://google.com",
+            "https://microsoft.com",
+            "https://yahoo.com.hk"
+        ];
 
-        // 2. Calculate minutes passed since anchor
-        const msInMinute = 60 * 1000;
-        const minutesPassed = Math.floor((hkNow - anchor) / msInMinute);
+        const anchor = new Date("2024-01-01T00:00:00+08:00"); 
 
-        // 3. Demo Logic: 1 minute "Gap", 1 minute "Active"
-        // (Even minutes = Active, Odd minutes = Gap)
-        const isGapMinute = minutesPassed % 2 !== 0;
+        function update() {
+            const hkNowStr = new Date().toLocaleString("en-US", {timeZone: "Asia/Hong_Kong"});
+            const hkNow = new Date(hkNowStr);
 
-        if (isGapMinute) {
-            document.getElementById('status').innerHTML = 
-                "<b>DEMO MODE: Gap Period</b><br>The next form will rotate in less than 60 seconds.";
-            
+            const msInMinute = 60 * 1000;
+            const minutesPassed = Math.floor((hkNow - anchor) / msInMinute);
+
+            const isGapMinute = minutesPassed % 2 !== 0;
+
             const timeString = hkNow.toLocaleTimeString("en-HK", { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            document.getElementById('hk-clock').innerHTML = "Current HK Time: " + timeString;
-        } else {
-            // 4. Rotation: Only increment the form index every 2 minutes (the full cycle)
-            const cycleIndex = Math.floor(minutesPassed / 2);
-            const target = forms[cycleIndex % forms.length];
-            
-            document.getElementById('status').innerHTML = "Redirecting to: " + target;
-            // Delaying redirect by 2 seconds so you can actually see the message in the demo
-            setTimeout(() => { window.location.replace(target); }, 2000);
-        }
-    }
+            document.getElementById('hk-clock').innerHTML = "HK Time: " + timeString;
 
-    // Refresh every second so the demo clock stays live
-    setInterval(update, 1000);
-    update();
-</script>
+            if (isGapMinute) {
+                document.getElementById('status').innerHTML = 
+                    "<b style='color:orange;'>DEMO: GAP PERIOD</b><br>Locked until next minute.";
+            } else {
+                const cycleIndex = Math.floor(minutesPassed / 2);
+                const target = forms[cycleIndex % forms.length];
+                
+                // NO DELAY: Instant redirection
+                window.location.replace(target);
+            }
+        }
+
+        window.onload = function() {
+            setInterval(update, 1000);
+            update();
+        };
+    </script>
+</body>
+</html>
